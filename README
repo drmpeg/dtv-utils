@@ -31,6 +31,41 @@ dvbt-blade.py
 ----------------------------------
 
 This Python script transmit a DVB-T digital television signal using the
-BladeRF and gr-dvbt (https://github.com/BogdanDIA/gr-dvbt). A file
-containing an MPEG 2 transport stream must be supplied as input.
+bladeRF and gr-dvbt (https://github.com/BogdanDIA/gr-dvbt). A file
+containing an MPEG-2 Transport Stream must be supplied as input.
+Optionally, an output file can be specified to store the generated
+IQ samples (in gr_complex floating point).
+
+Internal parameter values that can be changed:
+
+channel_mhz
+
+5, 6, 7 and 8 MHz channel widths are supported with an appropriate
+bladeRF low-pass filter
+
+mode
+
+dvbt.T2k        /* 2048 carriers */
+dvbt.T8k        /* 8192 carriers */
+
+code_rate
+
+dvbt.C1_2       /* 1/2 Viterbi rate */
+dvbt.C2_3       /* 2/3 Viterbi rate */
+dvbt.C3_4       /* 3/4 Viterbi rate */
+dvbt.C5_6       /* 5/6 Viterbi rate */
+dvbt.C7_8       /* 7/8 Viterbi rate */
+
+constellation
+
+dvbt.QPSK       /* QPSK */
+dvbt.QAM16      /* QAM16 */
+dvbt.QAM64      /* QAM64 */
+
+guard_interval
+
+dvbt.G1_32      /* 1/32 */
+dvbt.G1_16      /* 1/16 */
+dvbt.G1_8       /* 1/8 */
+dvbt.G1_4       /* 1/4 */
 
