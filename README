@@ -69,3 +69,12 @@ dvbt.G1_16      /* 1/16 */
 dvbt.G1_8       /* 1/8 */
 dvbt.G1_4       /* 1/4 */
 
+dvbtrate.c
+----------------------------------
+
+Calculates the precise Transport Stream bit-rate for all DVB-T
+constellations, Viterbi code rates and guard intervals for a
+given channel width.
+
+usage: dvbtrate <channel bandwidth>
+
