@@ -69,6 +69,7 @@ dvbt.G1_16      /* 1/16 */
 dvbt.G1_8       /* 1/8 */
 dvbt.G1_4       /* 1/4 */
 
+
 dvbtrate.c
 ----------------------------------
 
@@ -77,4 +78,45 @@ constellations, Viterbi code rates and guard intervals for a
 given channel width.
 
 usage: dvbtrate <channel bandwidth>
+
+For example:
+
+./dvbtrate 6
+
+
+qam-blade.py
+----------------------------------
+
+This Python script transmit a ANSI/SCTE 07 2013 (also known as
+ITU-T J.83 Annex B) 64-QAM digital television signal using the
+bladeRF and gr-qam (https://github.com/argilo/gr-qam). A file
+containing an MPEG-2 Transport Stream (at 26.970352 Mbps) must
+be supplied as input. Optionally, an output file can be specified
+to store the generated IQ samples (in gr_complex floating point).
+
+Internal parameter values that can be changed:
+
+The three parameters I_taps, J_increment and Control_Word can be
+used to control the interleaver from the following table.
+
+Control_Word    I_taps    J_increment
+     0            128          1
+     1            128          1
+     2            128          2
+     3             64          2
+     4            128          3
+     5             32          4
+     6            128          4
+     7             16          8
+     8            128          5
+     9              8          16
+    10            128          6
+    11          Reserved
+    12            128          7
+    13          Reserved
+    14            128          8
+    15          Reserved
+
+The default is Control_Word = 6, I_taps = 128 and J_increment = 4
+which seems to be the most commonly used on CATV systems.
 
