@@ -125,7 +125,7 @@ dvbs2rate.c
 ----------------------------------
 
 Calculates the precise Transport Stream bit-rate for all DVB-S2
-constellations, LPDC code rates and pilots on/off for a given
+constellations, LDPC code rates and pilots on/off for a given
 symbol rate.
 
 usage: dvbs2rate <symbol rate>
