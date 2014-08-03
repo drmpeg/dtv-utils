@@ -128,9 +128,15 @@ Calculates the precise Transport Stream bit-rate for all DVB-S2
 constellations, LDPC code rates and pilots on/off for a given
 symbol rate.
 
-usage: dvbs2rate <symbol rate>
+usage: dvbs2rate -sx <symbol rate>
+Options:
+	s = short FECFRAME rates
+	x = DVB-S2X rates
 
 For example:
 
 ./dvbs2rate 4500000
+./dvbs2rate -s 4500000
+./dvbs2rate -x 4500000
+./dvbs2rate -sx 4500000
 
