@@ -36,38 +36,24 @@ containing an MPEG-2 Transport Stream must be supplied as input.
 Optionally, an output file can be specified to store the generated
 IQ samples (in gr_complex floating point).
 
-Internal parameter values that can be changed:
+usage: dvbt-blade.py [-h] [-m MODE] [-c CH] [-C TYPE] [-r RATE] [-g D]
+                     [-f FREQ] [--txvga1 gain] [--txvga2 gain] [-o OUT]
+                     input-file
 
-channel_mhz
+positional arguments:
+  input-file            Input file
 
-5, 6, 7 and 8 MHz channel widths are supported with an appropriate
-bladeRF low-pass filter
-
-mode
-
-dvbt.T2k        /* 2048 carriers */
-dvbt.T8k        /* 8192 carriers */
-
-code_rate
-
-dvbt.C1_2       /* 1/2 Viterbi rate */
-dvbt.C2_3       /* 2/3 Viterbi rate */
-dvbt.C3_4       /* 3/4 Viterbi rate */
-dvbt.C5_6       /* 5/6 Viterbi rate */
-dvbt.C7_8       /* 7/8 Viterbi rate */
-
-constellation
-
-dvbt.QPSK       /* QPSK */
-dvbt.QAM16      /* QAM16 */
-dvbt.QAM64      /* QAM64 */
-
-guard_interval
-
-dvbt.G1_32      /* 1/32 */
-dvbt.G1_16      /* 1/16 */
-dvbt.G1_8       /* 1/8 */
-dvbt.G1_4       /* 1/4 */
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MODE, --mode MODE  # of carriers. Options: t2k, t8k (default).
+  -c CH, --channel CH   channel width in MHz. Options: 5, 6, 7, 8 (default).
+  -C TYPE, --cons TYPE  constellation. qpsk, qam16, qam64 (default).
+  -r RATE, --rate RATE  Viterbi rate. 1/2, 2/3, 3/4, 5/6, 7/8 (default).
+  -g D, --guard D       guard interval. 1/32 (default), 1/16, 1/8, 1/4.
+  -f FREQ, --freq FREQ  center frequency (Hz). Default is 429e6.
+  --txvga1 gain         bladeRF TXVGA1 gain. Default is -6.
+  --txvga2 gain         bladeRF TXVGA2 gain. Default is 9.
+  -o OUT, --output OUT  write to specified file.
 
 
 dvbtrate.c

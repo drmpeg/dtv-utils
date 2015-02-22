@@ -33,7 +33,7 @@ def main(args):
     parser.add_argument('-m', '--mode', dest='mode', default='t8k',
                         type=str, help=mode_help)
 
-    ch_help = 'channel width in MHz. Options: 5, 6, 7, 8 (default)'
+    ch_help = 'channel width in MHz. Options: 5, 6, 7, 8 (default).'
     parser.add_argument('-c', '--channel', dest='channel', default=8,
                         metavar='CH', type=int, help=ch_help)
 
@@ -41,15 +41,15 @@ def main(args):
     parser.add_argument('-C', '--cons', dest='cons', default='qam64',
                         metavar='TYPE', type=str, help=const_help)
 
-    rate_help = 'Viterbi rate. 1/2, 2/3, 3/4, 5/6, 7/8 (default)'
+    rate_help = 'Viterbi rate. 1/2, 2/3, 3/4, 5/6, 7/8 (default).'
     parser.add_argument('-r', '--rate', dest='rate', default='7/8',
                         type=str, help=rate_help)
 
-    guard_help = 'guard interval. 1/32 (default), 1/16, 1/8, 1/4'
+    guard_help = 'guard interval. 1/32 (default), 1/16, 1/8, 1/4.'
     parser.add_argument('-g', '--guard', dest='interval', default='1/32',
                         metavar='D', type=str, help=guard_help)
 
-    freq_help = 'center frequency (Hz). Default is 429e6'
+    freq_help = 'center frequency (Hz). Default is 429e6.'
     parser.add_argument('-f', '--freq', dest='freq', default=429e6,
                         type=float, help=freq_help)
 
@@ -57,11 +57,11 @@ def main(args):
     parser.add_argument('--txvga1', dest='txvga1', default=-6,
                         metavar='gain', type=int, help=vga1_help)
 
-    vga2_help = 'bladeRF TXVGA2 gain. Default is 9'
+    vga2_help = 'bladeRF TXVGA2 gain. Default is 9.'
     parser.add_argument('--txvga2', dest='txvga2', default=9,
                         metavar='gain', type=int, help=vga2_help)
 
-    outfile_help = 'write to specified file instead of bladeRF'
+    outfile_help = 'write to specified file.'
     parser.add_argument('-o', '--output', dest='outfile', default=None,
                         metavar='OUT', type=str, help=outfile_help)
 
