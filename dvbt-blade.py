@@ -23,28 +23,127 @@ from gnuradio.fft import window
 import dvbt
 import osmosdr
 import sys
+import argparse
 
 def main(args):
-    nargs = len(args)
-    if nargs == 1:
-        infile  = args[0]
-        outfile = None
-    elif nargs == 2:
-        infile  = args[0]
-        outfile  = args[1]
+    d = 'Transmit a DVB-T signal using the bladeRF and gr-dvbt'
+    parser = argparse.ArgumentParser()
+
+    mode_help = '# of carriers. Options: t2k, t8k (default).'
+    parser.add_argument('-m', '--mode', dest='mode', default='t8k',
+                        type=str, help=mode_help)
+
+    ch_help = 'channel width in MHz. Options: 5, 6, 7, 8 (default)'
+    parser.add_argument('-c', '--channel', dest='channel', default=8,
+                        metavar='CH', type=int, help=ch_help)
+
+    const_help = 'constellation. qpsk, qam16, qam64 (default).'
+    parser.add_argument('-C', '--cons', dest='cons', default='qam64',
+                        metavar='TYPE', type=str, help=const_help)
+
+    rate_help = 'Viterbi rate. 1/2, 2/3, 3/4, 5/6, 7/8 (default)'
+    parser.add_argument('-r', '--rate', dest='rate', default='7/8',
+                        type=str, help=rate_help)
+
+    guard_help = 'guard interval. 1/32 (default), 1/16, 1/8, 1/4'
+    parser.add_argument('-g', '--guard', dest='interval', default='1/32',
+                        metavar='D', type=str, help=guard_help)
+
+    freq_help = 'center frequency (Hz). Default is 429e6'
+    parser.add_argument('-f', '--freq', dest='freq', default=429e6,
+                        type=float, help=freq_help)
+
+    vga1_help = 'bladeRF TXVGA1 gain. Default is -6.'
+    parser.add_argument('--txvga1', dest='txvga1', default=-6,
+                        metavar='gain', type=int, help=vga1_help)
+
+    vga2_help = 'bladeRF TXVGA2 gain. Default is 9'
+    parser.add_argument('--txvga2', dest='txvga2', default=9,
+                        metavar='gain', type=int, help=vga2_help)
+
+    outfile_help = 'write to specified file instead of bladeRF'
+    parser.add_argument('-o', '--output', dest='outfile', default=None,
+                        metavar='OUT', type=str, help=outfile_help)
+
+    parser.add_argument('infile', metavar='input-file', type=str,
+                        help='Input file')
+
+    args = parser.parse_args()
+    print args
+
+    if args.mode.lower() == 't2k':
+        mode = dvbt.T2k
+    elif args.mode.lower() == 't8k':
+        mode  = dvbt.T8k
     else:
-        sys.stderr.write("Usage: dvbt-blade.py input_file [output_file]\n");
+        sys.stderr.write('Invalid mode provided: ' + args.mode + '\n')
         sys.exit(1)
 
-    channel_mhz = 8
-    mode = dvbt.T8k
-    code_rate = dvbt.C7_8
-    constellation = dvbt.QAM64
-    guard_interval = dvbt.G1_32
+    if args.channel < 5 or args.channel > 8:
+        sys.stderr.write('Invalid channel: ' + str(args.channel) + '\n')
+        sys.exit(1)
+    else:
+        channel_mhz = args.channel
+
+    if args.cons.lower() == 'qpsk':
+        constellation = dvbt.QPSK
+    elif args.cons.lower() == 'qam16':
+        constellation = dvbt.QAM16
+    elif args.cons.lower() == 'qam64':
+        constellation = dvbt.QAM64
+    else:
+        sys.stderr.write('Invalid constellation type: ' + args.cons + '\n')
+        sys.exit(1)
+
+    if args.rate == '1/2':
+        code_rate = dvbt.C1_2
+    elif args.rate == '2/3':
+        code_rate = dvbt.C2_3
+    elif args.rate == '3/4':
+        code_rate = dvbt.C3_4
+    elif args.rate == '5/6':
+        code_rate = dvbt.C5_6
+    elif args.rate == '7/8':
+        code_rate = dvbt.C7_8
+    else:
+        sys.stderr.write('Invalid Viterbi rate: ' + args.rate + '\n')
+        sys.exit(1)
+
+    if args.interval == '1/32':
+        guard_interval = dvbt.G1_32
+    elif args.interval == '1/16':
+        guard_interval = dvbt.G1_16
+    elif args.interval == '1/8':
+        guard_interval = dvbt.G1_8
+    elif args.interval == '1/4':
+        guard_interval = dvbt.G1_4
+    else:
+        sys.stderr.write('Invalid guard interval: ' + args.interval + '\n')
+        sys.exit(1)
+
+    if args.freq < 300e6 or args.freq > 3.8e9:
+        sys.stderr.write('Invalid center frequency: ' + str(args.freq) + '\n')
+        sys.exit(1)
+    else:
+        center_freq = int(args.freq)
+
+    if args.txvga1 < -35 or args.txvga1 > -4:
+        sys.stderr.write('Invalid bladeRF TXVGA1 gain: ' +
+                         str(args.txvga1) + '\n')
+        sys.exit(1)
+    else:
+        txvga1_gain = args.txvga1
+
+    if args.txvga2 < 0 or args.txvga2 > 25:
+        sys.stderr.write('Invalid bladeRF TXVGA2 gain: ' +
+                         str(args.txvga2) + '\n')
+        sys.exit(1)
+    else:
+        txvga2_gain = args.txvga2
+
+    infile = args.infile
+    outfile = args.outfile
     symbol_rate = channel_mhz * 8000000.0 / 7
-    center_freq = 429000000
-    txvga1_gain = -6
-    txvga2_gain = 9
 
     if mode == dvbt.T2k:
         factor = 1
