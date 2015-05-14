@@ -128,7 +128,7 @@ For example:
 
 DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):
 
-QAM16
+16QAM
 8 MHz
 
 http://www.w6rz.net/adv8dvbt12.ts /* 1/2 Viterbi rate 12.064171 Mbps TS rate */
@@ -151,7 +151,7 @@ http://www.w6rz.net/adv6dvbt34.ts /* 3/4 Viterbi rate 13.572192 Mbps TS rate */
 http://www.w6rz.net/adv6dvbt56.ts /* 5/6 Viterbi rate 15.080213 Mbps TS rate */
 http://www.w6rz.net/adv6dvbt78.ts /* 7/8 Viterbi rate 15.834224 Mbps TS rate */
 
-QAM64
+64QAM
 8 MHz
 
 http://www.w6rz.net/adv8dvbt12qam64.ts /* 1/2 Viterbi rate 18.096256 Mbps TS rate */
