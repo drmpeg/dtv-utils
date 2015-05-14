@@ -126,3 +126,53 @@ For example:
 ./dvbs2rate -x 4500000
 ./dvbs2rate -sx 4500000
 
+DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):
+
+QAM16
+8 MHz
+
+http://www.w6rz.net/adv8dvbt12.ts /* 1/2 Viterbi rate 12.064171 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt23.ts /* 2/3 Viterbi rate 16.085561 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt34.ts /* 3/4 Viterbi rate 18.096256 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt56.ts /* 5/6 Viterbi rate 20.106951 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt78.ts /* 7/8 Viterbi rate 21.112299 Mbps TS rate */
+
+7 MHz
+
+http://www.w6rz.net/adv7dvbt23.ts /* 2/3 Viterbi rate 14.074866 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt34.ts /* 3/4 Viterbi rate 15.834224 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt56.ts /* 5/6 Viterbi rate 17.593582 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt78.ts /* 7/8 Viterbi rate 18.473262 Mbps TS rate */
+
+6 MHz
+
+http://www.w6rz.net/adv6dvbt23.ts /* 2/3 Viterbi rate 12.064171 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt34.ts /* 3/4 Viterbi rate 13.572192 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt56.ts /* 5/6 Viterbi rate 15.080213 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt78.ts /* 7/8 Viterbi rate 15.834224 Mbps TS rate */
+
+QAM64
+8 MHz
+
+http://www.w6rz.net/adv8dvbt12qam64.ts /* 1/2 Viterbi rate 18.096256 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt23qam64.ts /* 2/3 Viterbi rate 24.128342 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt34qam64.ts /* 3/4 Viterbi rate 27.144385 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt56qam64.ts /* 5/6 Viterbi rate 30.160427 Mbps TS rate */
+http://www.w6rz.net/adv8dvbt78qam64.ts /* 7/8 Viterbi rate 31.668449 Mbps TS rate */
+
+7 MHz
+
+http://www.w6rz.net/adv7dvbt12qam64.ts /* 1/2 Viterbi rate 15.834224 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt23qam64.ts /* 2/3 Viterbi rate 21.112299 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt34qam64.ts /* 3/4 Viterbi rate 23.751336 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt56qam64.ts /* 5/6 Viterbi rate 26.390374 Mbps TS rate */
+http://www.w6rz.net/adv7dvbt78qam64.ts /* 7/8 Viterbi rate 27.709893 Mbps TS rate */
+
+6 MHz
+
+http://www.w6rz.net/adv6dvbt12qam64.ts /* 1/2 Viterbi rate 13.572192 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt23qam64.ts /* 2/3 Viterbi rate 18.096256 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt34qam64.ts /* 3/4 Viterbi rate 20.358288 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt56qam64.ts /* 5/6 Viterbi rate 22.620320 Mbps TS rate */
+http://www.w6rz.net/adv6dvbt78qam64.ts /* 7/8 Viterbi rate 23.751336 Mbps TS rate */
+
