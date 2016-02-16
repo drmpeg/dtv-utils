@@ -15,7 +15,7 @@ int main(int argc, char **argv)
     static float buffer[CHUNK_SIZE];
     int i, j, length;
     long long offset = 0;
-    long long peak_offset;
+    long long peak_offset = 0;
     double sum = 0.0;
     float peak = 0.0;
     float papr, value;
@@ -23,6 +23,10 @@ int main(int argc, char **argv)
     float peak_imag_pos = 0.0;
     float peak_real_neg = 0.0;
     float peak_imag_neg = 0.0;
+    long long peak_real_pos_offset = 0;
+    long long peak_imag_pos_offset = 0;
+    long long peak_real_neg_offset = 0;
+    long long peak_imag_neg_offset = 0;
     float *level;
     long long *level_count;
 
@@ -50,23 +54,27 @@ int main(int argc, char **argv)
             value = buffer[i];
             if (value > peak_real_pos) {
                 peak_real_pos = value;
+                peak_real_pos_offset = offset;
             }
             if (value < peak_real_neg) {
                 peak_real_neg = value;
+                peak_real_neg_offset = offset;
             }
             value = buffer[i + 1];
             if (value > peak_imag_pos) {
                 peak_imag_pos = value;
+                peak_imag_pos_offset = offset;
             }
             if (value < peak_imag_neg) {
                 peak_imag_neg = value;
+                peak_imag_neg_offset = offset;
             }
             offset++;
         }
     }
     sum = sum / offset;
     printf("Peak magnitude = %f\n", sqrt(peak));
-    printf("average power = %lf, peak power = %f @ %lld/%lld\n", sum, peak, peak_offset, peak_offset * 4);
+    printf("average power = %lf, peak power = %f @ %lld\n\n", sum, peak, peak_offset * 8);
     papr = 10 * log10((peak) / (sum));
     printf("Maximum PAPR = %f\n", papr);
     level = (float *)malloc(((int)papr + 1) * sizeof(float));
@@ -90,8 +98,11 @@ int main(int argc, char **argv)
     for (i = 0; i <= (int)papr; i++) {
         printf("percentage above %d dB = %0.8f\n", i, ((float)level_count[i] / (float)offset) * 100.0);
     }
+    printf("\n");
     printf("peak real positive = %f, peak imaginary positive = %f\n", peak_real_pos, peak_imag_pos);
-    printf("peak real negative = %f, peak imaginary negative = %f\n", peak_real_neg, peak_imag_neg);
+    printf("peak real negative = %f, peak imaginary negative = %f\n\n", peak_real_neg, peak_imag_neg);
+    printf("peak real positive @ %lld, peak imaginary positive @ %lld\n", peak_real_pos_offset * 8, (peak_imag_pos_offset * 8) + 1);
+    printf("peak real negative @ %lld, peak imaginary negative @ %lld\n", peak_real_neg_offset * 8, (peak_imag_neg_offset * 8) + 1);
     free(level_count);
     free(level);
     fclose(fp);
