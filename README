@@ -126,6 +126,19 @@ For example:
 ./dvbs2rate -x 4500000
 ./dvbs2rate -sx 4500000
 
+papr.c
+----------------------------------
+
+Calculates the PAPR (Peak to Average Power) of an IQ sample file (32-bit floating
+point pairs). The peak PAPR, percentage of power above each dB level and the
+value of the peak IQ samples are printed.
+
+usage: papr <infile>
+
+For Example:
+
+./papr atsc.cfile
+
 DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):
 
 16QAM
