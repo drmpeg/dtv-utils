@@ -132,7 +132,7 @@ papr.c
 
 Calculates the PAPR (Peak to Average Power) of an IQ sample file (32-bit floating
 point pairs). The peak PAPR, percentage of power above each dB level and the
-value of the peak IQ samples are printed.
+value and position in the file of the peak IQ samples are printed.
 
 usage: papr <infile>
 
