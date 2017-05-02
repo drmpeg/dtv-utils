@@ -144,7 +144,7 @@ Options:
         frame size = 0 = normal, 1 = short
         extended carrier = 0 normal, 1 = extended
         pilot pattern = 1, 2, 3, 4, 5, 6, 7, 8.
-        L1 modulaton = 1 = QPSK, 2 = 16QAM, 3 = 64QAM.
+        L1 modulaton = 0 = BPSK, 1 = QPSK, 2 = 16QAM, 3 = 64QAM.
 
 For example (BBC 40.2 Mbps parameters):
 
