@@ -1,4 +1,4 @@
-# Copyright 2014 Ron Economos
+# Copyright 2014-2017 Ron Economos
 #
 # This file is part of dtv-utils
 #
@@ -125,6 +125,44 @@ For example:
 ./dvbs2rate -s 4500000
 ./dvbs2rate -x 4500000
 ./dvbs2rate -sx 4500000
+
+
+dvbt2rate.c
+----------------------------------
+
+Calculates the precise Transport Stream bit-rate for all DVB-T2 parameters.
+
+dvbt2rate <channel bandwidth> <fft size> <guard interval> <number of data symbols> <number of FEC blocks> <code rate> <modulation> <frame size> <extended carrier> <pilot pattern> <L1 modulation>
+Options:
+	channel bandwidth = 0, 5, 6, 7, 8 or 10. The value 0 selects the 1.7 MHz mode.
+	fft size = 1, 2, 4, 8, 16 or 32.
+        guard interval = 0 = 1/32, 1 = 1/16, 2 = 1/8, 3 = 1/4, 4 = 1/128, 5 = 19/128, 6 = 19/256.
+        number of data symbols = number of symbols after the P2 symbol(s).
+        number of FEC blocks.
+        code rate = 1 = 1/2, 2 = 3/5, 3 = 2/3, 4 = 3/4, 5 = 4/5, 6 = 5/6, 7 = 1/3, 8 = 2/5.
+        modulation = 1 = QPSK, 2 = 16QAM, 3 = 64QAM, 4 = 256QAM.
+        frame size = 0 = normal, 1 = short
+        extended carrier = 0 normal, 1 = extended
+        pilot pattern = 1, 2, 3, 4, 5, 6, 7, 8.
+        L1 modulaton = 1 = QPSK, 2 = 16QAM, 3 = 64QAM.
+
+For example (BBC 40.2 Mbps parameters):
+
+./dvbt2rate 8 32 4 59 202 3 4 0 1 7 3
+
+There are also three compile time defines to control less often used parameters.
+
+#undef NORMAL_MODE
+#undef PAPR
+#undef MISO
+
+Change these to #define if one or more of these modes are in use.
+
+Note that a valid configuration must fulfill two rules.
+
+1) The frame time TF must be less than 250 milliseconds.
+
+2) The number of dummy cells must be positive.
 
 
 papr.c
