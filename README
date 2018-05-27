@@ -172,11 +172,15 @@ Calculates the PAPR (Peak to Average Power) of an IQ sample file (32-bit floatin
 point pairs). The peak PAPR, percentage of power above each dB level and the
 value and position in the file of the peak IQ samples are printed.
 
-usage: papr <infile>
+usage: papr -g <infile>
+Options:
+	g = graph suitable output
 
 For Example:
 
 ./papr atsc.cfile
+
+The -g option outputs values in 0.1 dB steps suitable for graphing.
 
 
 DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):
