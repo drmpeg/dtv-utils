@@ -1,6 +1,6 @@
 #!/usr/bin/env /usr/bin/python
 
-# Copyright 2014 Ron Economos (w6rz@comcast.net)
+# Copyright 2014,2018 Ron Economos (w6rz@comcast.net)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@ from gnuradio import digital
 from gnuradio import fft
 from gnuradio import gr
 from gnuradio.fft import window
-import dvbt
+from gnuradio import dtv
 import osmosdr
 import sys
 import argparse
 
 def main(args):
-    d = 'Transmit a DVB-T signal using the bladeRF and gr-dvbt'
+    d = 'Transmit a DVB-T signal using the bladeRF and gr-dtv'
     parser = argparse.ArgumentParser()
 
     mode_help = '# of carriers. Options: t2k, t8k (default).'
@@ -72,9 +72,9 @@ def main(args):
     print args
 
     if args.mode.lower() == 't2k':
-        mode = dvbt.T2k
+        mode = dtv.T2k
     elif args.mode.lower() == 't8k':
-        mode  = dvbt.T8k
+        mode = dtv.T8k
     else:
         sys.stderr.write('Invalid mode provided: ' + args.mode + '\n')
         sys.exit(1)
@@ -86,37 +86,37 @@ def main(args):
         channel_mhz = args.channel
 
     if args.cons.lower() == 'qpsk':
-        constellation = dvbt.QPSK
+        constellation = dtv.MOD_QPSK
     elif args.cons.lower() == 'qam16':
-        constellation = dvbt.QAM16
+        constellation = dtv.MOD_16QAM
     elif args.cons.lower() == 'qam64':
-        constellation = dvbt.QAM64
+        constellation = dtv.MOD_64QAM
     else:
         sys.stderr.write('Invalid constellation type: ' + args.cons + '\n')
         sys.exit(1)
 
     if args.rate == '1/2':
-        code_rate = dvbt.C1_2
+        code_rate = dtv.C1_2
     elif args.rate == '2/3':
-        code_rate = dvbt.C2_3
+        code_rate = dtv.C2_3
     elif args.rate == '3/4':
-        code_rate = dvbt.C3_4
+        code_rate = dtv.C3_4
     elif args.rate == '5/6':
-        code_rate = dvbt.C5_6
+        code_rate = dtv.C5_6
     elif args.rate == '7/8':
-        code_rate = dvbt.C7_8
+        code_rate = dtv.C7_8
     else:
         sys.stderr.write('Invalid Viterbi rate: ' + args.rate + '\n')
         sys.exit(1)
 
     if args.interval == '1/32':
-        guard_interval = dvbt.G1_32
+        guard_interval = dtv.GI_1_32
     elif args.interval == '1/16':
-        guard_interval = dvbt.G1_16
+        guard_interval = dtv.GI_1_16
     elif args.interval == '1/8':
-        guard_interval = dvbt.G1_8
+        guard_interval = dtv.GI_1_8
     elif args.interval == '1/4':
-        guard_interval = dvbt.G1_4
+        guard_interval = dtv.GI_1_4
     else:
         sys.stderr.write('Invalid guard interval: ' + args.interval + '\n')
         sys.exit(1)
@@ -145,20 +145,20 @@ def main(args):
     outfile = args.outfile
     symbol_rate = channel_mhz * 8000000.0 / 7
 
-    if mode == dvbt.T2k:
+    if mode == dtv.T2k:
         factor = 1
         carriers = 2048
-    elif mode == dvbt.T8k:
+    elif mode == dtv.T8k:
         factor = 4
         carriers = 8192
 
-    if guard_interval == dvbt.G1_32:
+    if guard_interval == dtv.GI_1_32:
         gi = carriers / 32
-    elif guard_interval == dvbt.G1_16:
+    elif guard_interval == dtv.GI_1_16:
         gi = carriers / 16
-    elif guard_interval == dvbt.G1_8:
+    elif guard_interval == dtv.GI_1_8:
         gi = carriers / 8
-    elif guard_interval == dvbt.G1_4:
+    elif guard_interval == dtv.GI_1_4:
         gi = carriers / 4
 
     if channel_mhz == 8:
@@ -176,14 +176,14 @@ def main(args):
 
     src = blocks.file_source(gr.sizeof_char, infile, True)
 
-    dvbt_energy_dispersal = dvbt.energy_dispersal(1 * factor)
-    dvbt_reed_solomon_enc = dvbt.reed_solomon_enc(2, 8, 0x11d, 255, 239, 8, 51, (8 * factor))
-    dvbt_convolutional_interleaver = dvbt.convolutional_interleaver((136 * factor), 12, 17)
-    dvbt_inner_coder = dvbt.inner_coder(1, (1512 * factor), constellation, dvbt.NH, code_rate)
-    dvbt_bit_inner_interleaver = dvbt.bit_inner_interleaver((1512 * factor), constellation, dvbt.NH, mode)
-    dvbt_symbol_inner_interleaver = dvbt.symbol_inner_interleaver((1512 * factor), mode, 1)
-    dvbt_dvbt_map = dvbt.dvbt_map((1512 * factor), constellation, dvbt.NH, mode, 1)
-    dvbt_reference_signals = dvbt.reference_signals(gr.sizeof_gr_complex, (1512 * factor), carriers, constellation, dvbt.NH, code_rate, code_rate, guard_interval, mode, 0, 0)
+    dtv_dvbt_energy_dispersal = dtv.dvbt_energy_dispersal(1 * factor)
+    dtv_dvbt_reed_solomon_enc = dtv.dvbt_reed_solomon_enc(2, 8, 0x11d, 255, 239, 8, 51, (8 * factor))
+    dtv_dvbt_convolutional_interleaver = dtv.dvbt_convolutional_interleaver((136 * factor), 12, 17)
+    dtv_dvbt_inner_coder = dtv.dvbt_inner_coder(1, (1512 * factor), constellation, dtv.NH, code_rate)
+    dtv_dvbt_bit_inner_interleaver = dtv.dvbt_bit_inner_interleaver((1512 * factor), constellation, dtv.NH, mode)
+    dtv_dvbt_symbol_inner_interleaver = dtv.dvbt_symbol_inner_interleaver((1512 * factor), mode, 1)
+    dtv_dvbt_map = dtv.dvbt_map((1512 * factor), constellation, dtv.NH, mode, 1)
+    dtv_dvbt_reference_signals = dtv.dvbt_reference_signals(gr.sizeof_gr_complex, (1512 * factor), carriers, constellation, dtv.NH, code_rate, code_rate, guard_interval, mode, 0, 0)
     fft_vxx = fft.fft_vcc(carriers, False, (window.rectangular(carriers)), True, 10)
     digital_ofdm_cyclic_prefixer = digital.ofdm_cyclic_prefixer(carriers, carriers+(gi), 0, "")
     blocks_multiply_const_vxx = blocks.multiply_const_vcc((0.0022097087, ))
@@ -196,15 +196,15 @@ def main(args):
     out.set_bb_gain(txvga1_gain, 0)
     out.set_bandwidth(bandwidth, 0)
 
-    tb.connect(src, dvbt_energy_dispersal)
-    tb.connect(dvbt_energy_dispersal, dvbt_reed_solomon_enc)
-    tb.connect(dvbt_reed_solomon_enc, dvbt_convolutional_interleaver)
-    tb.connect(dvbt_convolutional_interleaver, dvbt_inner_coder)
-    tb.connect(dvbt_inner_coder, dvbt_bit_inner_interleaver)
-    tb.connect(dvbt_bit_inner_interleaver, dvbt_symbol_inner_interleaver)
-    tb.connect(dvbt_symbol_inner_interleaver, dvbt_dvbt_map)
-    tb.connect(dvbt_dvbt_map, dvbt_reference_signals)
-    tb.connect(dvbt_reference_signals, fft_vxx)
+    tb.connect(src, dtv_dvbt_energy_dispersal)
+    tb.connect(dtv_dvbt_energy_dispersal, dtv_dvbt_reed_solomon_enc)
+    tb.connect(dtv_dvbt_reed_solomon_enc, dtv_dvbt_convolutional_interleaver)
+    tb.connect(dtv_dvbt_convolutional_interleaver, dtv_dvbt_inner_coder)
+    tb.connect(dtv_dvbt_inner_coder, dtv_dvbt_bit_inner_interleaver)
+    tb.connect(dtv_dvbt_bit_inner_interleaver, dtv_dvbt_symbol_inner_interleaver)
+    tb.connect(dtv_dvbt_symbol_inner_interleaver, dtv_dvbt_map)
+    tb.connect(dtv_dvbt_map, dtv_dvbt_reference_signals)
+    tb.connect(dtv_dvbt_reference_signals, fft_vxx)
     tb.connect(fft_vxx, digital_ofdm_cyclic_prefixer)
     tb.connect(digital_ofdm_cyclic_prefixer, blocks_multiply_const_vxx)
     tb.connect(blocks_multiply_const_vxx, out)
