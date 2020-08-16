@@ -25,8 +25,6 @@
 #define KBCH_1_2 7032
 #define KSIG_POST 350
 #define NBCH_PARITY 168
-#undef NORMAL_MODE
-#undef PAPR
 #undef MISO
 
     enum dvbt2_code_rate_t {
@@ -432,12 +430,10 @@ int main(int argc, char **argv)
     }
     printf("clock rate = %f, TF = %f ms\n", clock_num / clock_den, TF * 1000.0);
 
-#ifdef NORMAL_MODE
     bitrate = (1.0 / TF) * (188.0 / 188.0) * ((fecblocks * (kbch - 80.0)) - 0.0);
-#else
+    printf("Normal mode bitrate = %f\n", bitrate);
     bitrate = (1.0 / TF) * (188.0 / 187.0) * ((fecblocks * (kbch - 80.0)) - 0.0);
-#endif
-    printf("bitrate = %f\n", bitrate);
+    printf("High Efficiency mode bitrate = %f\n\n", bitrate);
 
     if (framesize == FECFRAME_NORMAL)
     {
@@ -613,20 +609,6 @@ int main(int argc, char **argv)
                     C_FC = 0;
                     break;
             }
-#ifdef PAPR
-            if (C_DATA != 0)
-            {
-                C_DATA -= 10;
-            }
-            if (N_FC != 0)
-            {
-                N_FC -= 10;
-            }
-            if (C_FC != 0)
-            {
-                C_FC -= 10;
-            }
-#endif
             break;
         case FFTSIZE_2K:
             switch (pilotpattern)
@@ -677,20 +659,6 @@ int main(int argc, char **argv)
                     C_FC = 0;
                     break;
             }
-#ifdef PAPR
-            if (C_DATA != 0)
-            {
-                C_DATA -= 18;
-            }
-            if (N_FC != 0)
-            {
-                N_FC -= 18;
-            }
-            if (C_FC != 0)
-            {
-                C_FC -= 18;
-            }
-#endif
             break;
         case FFTSIZE_4K:
             switch (pilotpattern)
@@ -741,20 +709,6 @@ int main(int argc, char **argv)
                     C_FC = 0;
                     break;
             }
-#ifdef PAPR
-            if (C_DATA != 0)
-            {
-                C_DATA -= 36;
-            }
-            if (N_FC != 0)
-            {
-                N_FC -= 36;
-            }
-            if (C_FC != 0)
-            {
-                C_FC -= 36;
-            }
-#endif
             break;
         case FFTSIZE_8K_NORM:
         case FFTSIZE_8K_SGI:
@@ -860,20 +814,6 @@ int main(int argc, char **argv)
                         break;
                 }
             }
-#ifdef PAPR
-            if (C_DATA != 0)
-            {
-                C_DATA -= 72;
-            }
-            if (N_FC != 0)
-            {
-                N_FC -= 72;
-            }
-            if (C_FC != 0)
-            {
-                C_FC -= 72;
-            }
-#endif
             break;
         case FFTSIZE_16K:
             if (carriermode == CARRIERS_NORMAL)
@@ -978,20 +918,6 @@ int main(int argc, char **argv)
                         break;
                 }
             }
-#ifdef PAPR
-            if (C_DATA != 0)
-            {
-                C_DATA -= 144;
-            }
-            if (N_FC != 0)
-            {
-                N_FC -= 144;
-            }
-            if (C_FC != 0)
-            {
-                C_FC -= 144;
-            }
-#endif
             break;
         case FFTSIZE_32K_NORM:
         case FFTSIZE_32K_SGI:
@@ -1097,20 +1023,6 @@ int main(int argc, char **argv)
                         break;
                 }
             }
-#ifdef PAPR
-            if (C_DATA != 0)
-            {
-                C_DATA -= 288;
-            }
-            if (N_FC != 0)
-            {
-                N_FC -= 288;
-            }
-            if (C_FC != 0)
-            {
-                C_FC -= 288;
-            }
-#endif
             break;
         default:
             C_DATA = 0;
@@ -1161,6 +1073,148 @@ int main(int argc, char **argv)
     }
     D_L1 = (N_post / eta_mod) + 1840;
     printf("max symbols = %d, max blocks = %d\n", (int)max_symbols, (cells - D_L1) / cell_size);
+
+    numsymbols = (int)symbols - N_P2;
+    if (N_FC == 0)
+    {
+        cells = (N_P2 * C_P2) + (numsymbols * C_DATA);
+    }
+    else
+    {
+        cells = (N_P2 * C_P2) + ((numsymbols - 1) * C_DATA) + C_FC;
+    }
+    N_punc_temp = (6 * (KBCH_1_2 - KSIG_POST)) / 5;
+    N_post_temp = KSIG_POST + NBCH_PARITY + 9000 - N_punc_temp;
+    if (N_P2 == 1)
+    {
+        N_post = ceil((float)N_post_temp / (2 * (float)eta_mod)) * 2 * eta_mod;
+    }
+    else
+    {
+        N_post = ceil((float)N_post_temp / ((float)eta_mod * (float)N_P2)) * eta_mod * N_P2;
+    }
+    D_L1 = (N_post / eta_mod) + 1840;
+    printf("symbols = %d, max blocks = %d\n", (int)symbols, (cells - D_L1) / cell_size);
+    if (N_FC == 0)
+    {
+        cells = (N_P2 * C_P2) + (numsymbols * C_DATA);
+    }
+    else
+    {
+        cells = (N_P2 * C_P2) + ((numsymbols - 1) * C_DATA) + N_FC;
+    }
+    printf("cells = %d, stream = %d, L1 = %d, dummy = %d, unmodulated = %d\n\n", cells, cell_size * (int)fecblocks, D_L1, cells - (cell_size * (int)fecblocks) - 1840 - (N_post / eta_mod) - (N_FC - C_FC), N_FC - C_FC);
+
+    switch (fft_size)
+    {
+        case FFTSIZE_1K:
+            if (C_DATA != 0)
+            {
+                C_DATA -= 10;
+            }
+            if (N_FC != 0)
+            {
+                N_FC -= 10;
+            }
+            if (C_FC != 0)
+            {
+                C_FC -= 10;
+            }
+            break;
+        case FFTSIZE_2K:
+            if (C_DATA != 0)
+            {
+                C_DATA -= 18;
+            }
+            if (N_FC != 0)
+            {
+                N_FC -= 18;
+            }
+            if (C_FC != 0)
+            {
+                C_FC -= 18;
+            }
+            break;
+        case FFTSIZE_4K:
+            if (C_DATA != 0)
+            {
+                C_DATA -= 36;
+            }
+            if (N_FC != 0)
+            {
+                N_FC -= 36;
+            }
+            if (C_FC != 0)
+            {
+                C_FC -= 36;
+            }
+            break;
+        case FFTSIZE_8K_NORM:
+        case FFTSIZE_8K_SGI:
+            if (C_DATA != 0)
+            {
+                C_DATA -= 72;
+            }
+            if (N_FC != 0)
+            {
+                N_FC -= 72;
+            }
+            if (C_FC != 0)
+            {
+                C_FC -= 72;
+            }
+            break;
+        case FFTSIZE_16K:
+            if (C_DATA != 0)
+            {
+                C_DATA -= 144;
+            }
+            if (N_FC != 0)
+            {
+                N_FC -= 144;
+            }
+            if (C_FC != 0)
+            {
+                C_FC -= 144;
+            }
+            break;
+        case FFTSIZE_32K_NORM:
+        case FFTSIZE_32K_SGI:
+            if (C_DATA != 0)
+            {
+                C_DATA -= 288;
+            }
+            if (N_FC != 0)
+            {
+                N_FC -= 288;
+            }
+            if (C_FC != 0)
+            {
+                C_FC -= 288;
+            }
+            break;
+    }
+    numsymbols = (int)max_symbols - N_P2;
+    if (N_FC == 0)
+    {
+        cells = (N_P2 * C_P2) + (numsymbols * C_DATA);
+    }
+    else
+    {
+        cells = (N_P2 * C_P2) + ((numsymbols - 1) * C_DATA) + C_FC;
+    }
+    N_punc_temp = (6 * (KBCH_1_2 - KSIG_POST)) / 5;
+    N_post_temp = KSIG_POST + NBCH_PARITY + 9000 - N_punc_temp;
+    if (N_P2 == 1)
+    {
+        N_post = ceil((float)N_post_temp / (2 * (float)eta_mod)) * 2 * eta_mod;
+    }
+    else
+    {
+        N_post = ceil((float)N_post_temp / ((float)eta_mod * (float)N_P2)) * eta_mod * N_P2;
+    }
+    D_L1 = (N_post / eta_mod) + 1840;
+    printf("PAPR max symbols = %d, max blocks = %d\n", (int)max_symbols, (cells - D_L1) / cell_size);
 
     numsymbols = (int)symbols - N_P2;
     if (N_FC == 0)
