@@ -90,6 +90,7 @@ int main(int argc, char **argv)
     int       i;
     int       short_frame = FALSE;
     int       dvb_s2x = FALSE;
+    int       vlsnr = FALSE;
     double    rate;
     double    symbol_rate = 27500000.0;
     double    q;
@@ -98,6 +99,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "usage: dvbs2rate -sx <symbol rate>\n");
         fprintf(stderr, "Options:\n");
         fprintf(stderr, "\ts = short FECFRAME rates\n");
+        fprintf(stderr, "\tv = DVB-S2X VL-SNR\n");
         fprintf(stderr, "\tx = DVB-S2X rates\n");
         exit(-1);
     }
@@ -117,6 +119,10 @@ int main(int argc, char **argv)
                     case 'S':
                         short_frame = TRUE;
                         break;
+                    case 'v':
+                    case 'V':
+                        vlsnr = TRUE;
+                        break;
                     case 'x':
                     case 'X':
                         dvb_s2x = TRUE;
@@ -131,12 +137,33 @@ int main(int argc, char **argv)
             fprintf(stderr, "usage: dvbs2rate -sx <symbol rate>\n");
             fprintf(stderr, "Options:\n");
             fprintf(stderr, "\ts = short FECFRAME rates\n");
+            fprintf(stderr, "\tv = DVB-S2X VL-SNR\n");
             fprintf(stderr, "\tx = DVB-S2X rates\n");
             exit(-1);
         }
         symbol_rate = atof(argv[2]);
     }
 
+    if (vlsnr == TRUE) {
+        printf("DVB-S2X short FECFRAME\n");
+        printf("BPSK-SF2\n");
+        printf("coderate = 1/5,   Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -9.90, -9.9 - (10 * log10((1.0 / 33282) * (2512 - 80))), (symbol_rate / 33282) * (2512 - 80));
+        printf("coderate = 11/45, Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -8.30, -8.3 - (10 * log10((1.0 / 33282) * (3792 - 80))), (symbol_rate / 33282) * (3792 - 80));
+        printf("BPSK\n");
+        printf("coderate = 1/5,   Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -6.10, -6.1 - (10 * log10((1.0 / 16686) * (3072 - 80))), (symbol_rate / 16686) * (3072 - 80));
+        printf("coderate = 4/15,  Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -4.90, -4.9 - (10 * log10((1.0 / 16686) * (4152 - 80))), (symbol_rate / 16686) * (4152 - 80));
+        printf("coderate = 1/3,   Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -3.72, -3.72 - (10 * log10((1.0 / 16686) * (5232 - 80))), (symbol_rate / 16686) * (5232 - 80));
+        printf("DVB-S2X medium FECFRAME\n");
+        printf("BPSK\n");
+        printf("coderate = 1/5,   Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -6.85, -6.85 - (10 * log10((1.0 / 33282) * (5660 - 80))), (symbol_rate / 33282) * (5660 - 80));
+        printf("coderate = 11/45, Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -5.50, -5.5 - (10 * log10((1.0 / 33282) * (7740 - 80))), (symbol_rate / 33282) * (7740 - 80));
+        printf("coderate = 1/3,   Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -4.00, -4.0 - (10 * log10((1.0 / 33282) * (10620 - 80))), (symbol_rate / 33282) * (10620 - 80));
+        printf("DVB-S2X normal FECFRAME\n");
+        printf("QPSK\n");
+        printf("coderate = 2/9,   Es/No = %0.2f, Eb/No = %f, ts_rate = %f\n", -2.85, -2.85 - (10 * log10((1.0 / 33282) * (14208 - 80))), (symbol_rate / 33282) * (14208 - 80));
+
+        return 0;
+    }
     if (dvb_s2x == FALSE)
     {
         if (short_frame == FALSE)
