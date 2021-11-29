@@ -315,6 +315,12 @@ int main(int argc, char **argv)
     case MOD_256QAM:
       mod = 8;
       break;
+    case MOD_1024QAM:
+      mod = 10;
+      break;
+    case MOD_4096QAM:
+      mod = 12;
+      break;
     default:
       mod = 2;
       break;
