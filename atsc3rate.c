@@ -103,6 +103,22 @@ enum atsc3_l1_fec_mode_t {
   L1_FEC_MODE_7,
 };
 
+enum atsc3_reduced_carriers_t {
+  CRED_0 = 0,
+  CRED_1,
+  CRED_2,
+  CRED_3,
+  CRED_4,
+};
+
+enum atsc3_scattered_pilot_boost_t {
+  SPB_0 = 0,
+  SPB_1,
+  SPB_2,
+  SPB_3,
+  SPB_4,
+};
+
 int main(int argc, char **argv)
 {
   int fftsize, numpayloadsyms, numpreamblesyms, rate;
@@ -119,15 +135,17 @@ int main(int argc, char **argv)
   int sbs_cells;
   int sbs_data_cells;
   int sbsnullcells;
+  int papr_cells;
   int firstsbs;
   int cred = 0;
   int pilotboost = 4;
+  int paprmode;
   int gisamples;
   double clock_num, clock_den = 1.0;
   double bitrate, T, TS, TF, TB, symbols, kbch, fecsize, fecrate;
 
-  if (argc != 14) {
-    fprintf(stderr, "usage: atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost>\n");
+  if (argc != 15) {
+    fprintf(stderr, "usage: atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost> <PAPR mode\n");
     fprintf(stderr, "\nfft size = 8, 16, 32\n");
     fprintf(stderr, "\nguard interval = 1/192, 2/384, 3/512, 4/768, 5/1024, 6/1536, 7/2048, 8/2432, 9/3072, 10/3648, 11/4096, 12/3864\n");
     fprintf(stderr, "\nmodulation 0/QPSK, 1/16QAM, 2/64QAM, 3/256QAM\n");
@@ -165,6 +183,7 @@ int main(int argc, char **argv)
   firstsbs = atoi(argv[9]);
   cred = atoi(argv[12]);
   pilotboost = atoi(argv[13]);
+  paprmode = atoi(argv[14]);
   switch (atoi(argv[10]) - 1)
   {
     case L1_FEC_MODE_1:
@@ -327,6 +346,7 @@ int main(int argc, char **argv)
   }
   switch (fft_size) {
     case FFTSIZE_8K:
+      papr_cells = 72;
       switch (guardinterval) {
         case GI_1_192:
           gisamples = 192;
@@ -458,6 +478,7 @@ int main(int argc, char **argv)
       }
       break;
     case FFTSIZE_16K:
+      papr_cells = 144;
       switch (guardinterval) {
         case GI_1_192:
           gisamples = 192;
@@ -609,6 +630,7 @@ int main(int argc, char **argv)
       }
       break;
     case FFTSIZE_32K:
+      papr_cells = 288;
       switch (guardinterval) {
         case GI_1_192:
           gisamples = 192;
@@ -777,6 +799,7 @@ int main(int argc, char **argv)
       }
       break;
     default:
+      papr_cells = 72;
       switch (guardinterval) {
         case GI_1_192:
           gisamples = 192;
@@ -1054,8 +1077,390 @@ int main(int argc, char **argv)
   }
   printf("L1 Basic mode = %d\n", atoi(argv[10]));
   printf("L1 Detail mode = %d\n", atoi(argv[11]));
+  switch (cred)
+  {
+    case CRED_0:
+      printf("bandwidth = 5.833 MHz\n");
+      break;
+    case CRED_1:
+      printf("bandwidth = 5.752 MHz\n");
+      break;
+    case CRED_2:
+      printf("bandwidth = 5.671 MHz\n");
+      break;
+    case CRED_3:
+      printf("bandwidth = 5.590 MHz\n");
+      break;
+    case CRED_4:
+      printf("bandwidth = 5.509 MHz\n");
+      break;
+    default:
+      printf("constellation = invalid\n");
+      break;
+  }
+  switch (pilotpattern)
+  {
+    case PILOT_SP3_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.175\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.288\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.396\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP3_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.175\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.396\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.549\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.660\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP4_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.072\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.274\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.413\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.514\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP4_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.274\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.514\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.660\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.799\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP6_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.202\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.429\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.585\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.698\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP6_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.413\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.679\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.862\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.995\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP8_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.288\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.549\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.698\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 1.841\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP8_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.514\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.799\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.995\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.138\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP12_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.445\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.718\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 1.905\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.042\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP12_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.679\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.995\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.213\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.371\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP16_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.549\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 1.841\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.042\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.188\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP16_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.820\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 2.163\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.399\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.570\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP24_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.718\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 2.042\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.265\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.427\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP24_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 2.018\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 2.399\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.661\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.851\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP32_2:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 1.862\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 2.213\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.427\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 2.630\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    case PILOT_SP32_4:
+      switch (pilotboost) {
+        case SPB_0:
+          printf("pilot boost = 1.000\n");
+          break;
+        case SPB_1:
+          printf("pilot boost = 2.163\n");
+          break;
+        case SPB_2:
+          printf("pilot boost = 2.570\n");
+          break;
+        case SPB_3:
+          printf("pilot boost = 2.851\n");
+          break;
+        case SPB_4:
+          printf("pilot boost = 3.055\n");
+          break;
+        default:
+          printf("pilot boost = invalid\n");
+          break;
+      }
+      break;
+    default:
+      printf("pilot boost = invalid\n");
+      break;
+  }
   printf("\n");
 
+  if (paprmode != 1) {
+    papr_cells = 0;
+  }
   symbols = numpayloadsyms + numpreamblesyms;
   T = 1.0 / (clock_num / clock_den);
   TB = 1.0 / 6144000.0;
@@ -1065,13 +1470,13 @@ int main(int argc, char **argv)
   printf("frame time = %f ms\n", TF);
   total_preamble_cells = 0;
   for (int n = 1; n < numpreamblesyms; n++) {
-    total_preamble_cells += preamble_cells;
+    total_preamble_cells += preamble_cells - papr_cells;
   }
   if (firstsbs) {
-    totalcells = first_preamble_cells + total_preamble_cells + ((numpayloadsyms - 2) * data_cells) + (sbs_cells * 2);
+    totalcells = first_preamble_cells + total_preamble_cells + ((numpayloadsyms - 2) * (data_cells - papr_cells)) + ((sbs_cells - papr_cells) * 2);
   }
   else {
-    totalcells = first_preamble_cells + total_preamble_cells + ((numpayloadsyms - 1) * data_cells) + sbs_cells;
+    totalcells = first_preamble_cells + total_preamble_cells + ((numpayloadsyms - 1) * (data_cells - papr_cells)) + (sbs_cells - papr_cells);
   }
   printf("total cells = %d\n", totalcells);
   sbsnullcells = sbs_cells - sbs_data_cells;
