@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Ron Economos (w6rz@comcast.net)
+ * Copyright 2021-2023 Ron Economos (w6rz@comcast.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1472,6 +1472,10 @@ int main(int argc, char **argv)
   for (int n = 1; n < numpreamblesyms; n++) {
     total_preamble_cells += preamble_cells - papr_cells;
   }
+  if (numpreamblesyms == 0) {
+    first_preamble_cells = 0;
+    l1cells = 0;
+  }
   if (firstsbs) {
     totalcells = first_preamble_cells + total_preamble_cells + ((numpayloadsyms - 2) * (data_cells - papr_cells)) + ((sbs_cells - papr_cells) * 2);
   }
@@ -1482,14 +1486,16 @@ int main(int argc, char **argv)
   sbsnullcells = sbs_cells - sbs_data_cells;
   printf("L1 cells = %d\n", l1cells);
   printf("1st preamble cells = %d\n", first_preamble_cells);
-  if (l1cells > first_preamble_cells) {
-    if (numpreamblesyms != 2) {
-      printf("**** warning, two preamble symbols required ****\n");
+  if (numpreamblesyms != 0) {
+    if (l1cells > first_preamble_cells) {
+      if (numpreamblesyms != 2) {
+        printf("**** warning, two preamble symbols required ****\n");
+      }
     }
-  }
-  else {
-    if (numpreamblesyms != 1) {
-      printf("**** warning, one preamble symbol required ****\n");
+    else {
+      if (numpreamblesyms != 1) {
+        printf("**** warning, one preamble symbol required ****\n");
+      }
     }
   }
   if (firstsbs) {
