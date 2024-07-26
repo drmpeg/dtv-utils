@@ -68,7 +68,7 @@ double calc_short(double symbols, double mod, double num, double den, double bch
     double    fec_frame = 16200.0;
     double    tsrate;
 
-    tsrate = symbols / (fec_frame / mod + 90 + ceil((fec_frame/ mod / 90 / 16 - 1)) * pilots) * (fec_frame * (num / den) - (16 * bch) - 80);
+    tsrate = symbols / (fec_frame / mod + 90 + ceil((fec_frame/ mod / 90 / 16 - 1)) * pilots) * (fec_frame * (num / den) - (14 * bch) - 80);
     return (tsrate);
 }
 
