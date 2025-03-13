@@ -1,4 +1,4 @@
-# Copyright 2014-2023 Ron Economos
+# Copyright 2014-2025 Ron Economos
 #
 # This file is part of dtv-utils
 #
@@ -181,6 +181,29 @@ For Example:
 ./papr atsc.cfile
 
 The -g option outputs values in 0.1 dB steps suitable for graphing.
+
+
+atsc3rate.c
+----------------------------------
+
+Calculates the precise Transport Stream bit-rate for all ATSC 3.0 parameters.
+
+atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost> <PAPR mode> <optional PLP size>
+
+Options:
+        fft size = 8, 16, 32
+        guard interval = 1/192, 2/384, 3/512, 4/768, 5/1024, 6/1536, 7/2048, 8/2432, 9/3072, 10/3648, 11/4096, 12/3864
+        modulation 0/QPSK, 1/16QAM, 2/64QAM, 3/256QAM
+        frame size = 0/normal, 1/short
+        pilot pattern = 0/SP3_2, 1/SP3_4, 2/SP4_2, 3/SP4_4, 4/SP6_2, 5/SP6_4, 6/SP8_2, 7/SP8_4, 8/SP12_2, 9/SP12_4, 10/SP16_2, 11/SP16_4, 12/SP24_2, 13/SP24_4, 14/SP32_2, 15/SP32_4
+
+For example (vv031.grc parameters):
+
+./atsc3rate 8 5 72 2 9 3 0 1 0 1 1 0 4 0
+
+For example (vv503.grc with HTI interleaver PLP0 parameters):
+
+./atsc3rate 8 5 150 2 9 1 0 1 0 1 1 0 4 0 453600
 
 
 DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):

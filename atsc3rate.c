@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Ron Economos (w6rz@comcast.net)
+ * Copyright 2021-2025 Ron Economos (w6rz@comcast.net)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,8 +144,8 @@ int main(int argc, char **argv)
   double clock_num, clock_den = 1.0;
   double bitrate, T, TS, TF, TB, symbols, kbch, fecsize, fecrate;
 
-  if (argc != 15) {
-    fprintf(stderr, "usage: atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost> <PAPR mode\n");
+  if (argc != 15 && argc != 16) {
+    fprintf(stderr, "usage: atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost> <PAPR mode> <optional PLP size>\n");
     fprintf(stderr, "\nfft size = 8, 16, 32\n");
     fprintf(stderr, "\nguard interval = 1/192, 2/384, 3/512, 4/768, 5/1024, 6/1536, 7/2048, 8/2432, 9/3072, 10/3648, 11/4096, 12/3864\n");
     fprintf(stderr, "\nmodulation 0/QPSK, 1/16QAM, 2/64QAM, 3/256QAM\n");
@@ -1506,10 +1506,15 @@ int main(int argc, char **argv)
     plpsize = totalcells - l1cells - sbsnullcells;
     printf("SBS null cells = %d\n", sbsnullcells);
   }
+  if (argc == 16) {
+    plpsize = atoi(argv[15]);
+  }
   printf("PLP size = %d\n", plpsize);
   fecrate = ((kbch - 16) / fecsize); /* 1 TS packet per ALP packet and MODE always = 1 */
   bitrate = (1000.0 / TF) * (plpsize * mod * fecrate);
-  printf("bitrate = %.03f\n", bitrate);
+  printf("TS bitrate = %.03f\n", bitrate);
+  fecrate = kbch / fecsize;
+  bitrate = (1000.0 / TF) * (plpsize * mod * fecrate);
+  printf("PLP bitrate = %.03f\n", bitrate);
   return 0;
 }
-
