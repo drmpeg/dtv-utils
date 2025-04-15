@@ -119,6 +119,8 @@ enum atsc3_scattered_pilot_boost_t {
   SPB_4,
 };
 
+#define TI_MEMORY (1<<19)
+
 int main(int argc, char **argv)
 {
   int fftsize, numpayloadsyms, numpreamblesyms, rate;
@@ -136,6 +138,10 @@ int main(int argc, char **argv)
   int sbs_data_cells;
   int sbsnullcells;
   int papr_cells;
+  int fec_cells;
+  int fec_blocks;
+  int ti_blocks;
+  int hti_plpsize;
   int firstsbs;
   int cred = 0;
   int pilotboost = 4;
@@ -143,9 +149,10 @@ int main(int argc, char **argv)
   int gisamples;
   double clock_num, clock_den = 1.0;
   double bitrate, T, TS, TF, TB, symbols, kbch, fecsize, fecrate;
+  float plp_ratio;
 
   if (argc != 15 && argc != 16) {
-    fprintf(stderr, "usage: atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost> <PAPR mode> <optional PLP size>\n");
+    fprintf(stderr, "usage: atsc3rate <fft size> <guard interval> <number of data symbols> <number of preamble symbols> <code rate> <modulation> <frame size> <pilot pattern> <first SBS> <L1 Basic mode> <L1 Detail mode> <reduced carriers> <pilot boost> <PAPR mode> <optional HTI blocks>\n");
     fprintf(stderr, "\nfft size = 8, 16, 32\n");
     fprintf(stderr, "\nguard interval = 1/192, 2/384, 3/512, 4/768, 5/1024, 6/1536, 7/2048, 8/2432, 9/3072, 10/3648, 11/4096, 12/3864\n");
     fprintf(stderr, "\nmodulation 0/QPSK, 1/16QAM, 2/64QAM, 3/256QAM\n");
@@ -934,11 +941,51 @@ int main(int argc, char **argv)
   {
     fecsize = 64800.0;
     printf("frame size = normal\n");
+    switch (constellation) {
+      case MOD_QPSK:
+        fec_cells = 32400;
+        break;
+      case MOD_16QAM:
+        fec_cells = 16200;
+        break;
+      case MOD_64QAM:
+        fec_cells = 10800;
+        break;
+      case MOD_256QAM:
+        fec_cells = 8100;
+        break;
+      case MOD_1024QAM:
+        fec_cells = 6480;
+        break;
+      case MOD_4096QAM:
+        fec_cells = 5400;
+        break;
+      default:
+        fec_cells = 0;
+        break;
+    }
   }
   else if (framesize == FECFRAME_SHORT)
   {
     fecsize = 16200.0;
     printf("frame size = short\n");
+    switch (constellation) {
+      case MOD_QPSK:
+        fec_cells = 8100;
+        break;
+      case MOD_16QAM:
+        fec_cells = 4050;
+        break;
+      case MOD_64QAM:
+        fec_cells = 2700;
+        break;
+      case MOD_256QAM:
+        fec_cells = 2025;
+        break;
+      default:
+        fec_cells = 0;
+        break;
+    }
   }
   else
   {
@@ -1095,7 +1142,7 @@ int main(int argc, char **argv)
       printf("bandwidth = 5.509 MHz\n");
       break;
     default:
-      printf("constellation = invalid\n");
+      printf("bandwidth = invalid\n");
       break;
   }
   switch (pilotpattern)
@@ -1507,9 +1554,26 @@ int main(int argc, char **argv)
     printf("SBS null cells = %d\n", sbsnullcells);
   }
   if (argc == 16) {
-    plpsize = atoi(argv[15]);
+    fec_blocks = atoi(argv[15]);
+    hti_plpsize = fec_blocks * fec_cells;
+    if (hti_plpsize % TI_MEMORY) {
+      ti_blocks = (hti_plpsize / TI_MEMORY) + 1;
+    }
+    else {
+      ti_blocks = hti_plpsize / TI_MEMORY;
+    }
+    plp_ratio = (float)hti_plpsize / (float)plpsize;
+    if (plp_ratio > 0.9) {
+      printf("PLP size = %d, unused cells = %d, minimum TI blocks = %d\n", hti_plpsize, plpsize - hti_plpsize, ti_blocks);
+    }
+    else {
+      printf("PLP size = %d, unused cells = %d\n", hti_plpsize, plpsize - hti_plpsize);
+    }
+    plpsize = hti_plpsize;
   }
-  printf("PLP size = %d\n", plpsize);
+  else {
+    printf("PLP size = %d\n", plpsize);
+  }
   fecrate = ((kbch - 16) / fecsize); /* 1 TS packet per ALP packet and MODE always = 1 */
   bitrate = (1000.0 / TF) * (plpsize * mod * fecrate);
   printf("TS bitrate = %.03f\n", bitrate);

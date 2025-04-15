@@ -203,7 +203,7 @@ For example (vv031.grc parameters):
 
 For example (vv503.grc with HTI interleaver PLP0 parameters):
 
-./atsc3rate 8 5 150 2 9 1 0 1 0 1 1 0 4 0 453600
+./atsc3rate 8 5 150 2 9 1 0 1 0 1 1 0 4 0 28
 
 
 DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):
