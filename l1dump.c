@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stddef.h>
 
-base64 decoder from https://nachtimwald.com/2017/11/18/base64-encode-and-decode-in-c/
+/* base64 decoder from https://nachtimwald.com/2017/11/18/base64-encode-and-decode-in-c/ */
 
 int b64invs[] = { 62, -1, -1, -1, 63, 52, 53, 54, 55, 56, 57, 58,
     59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5,
