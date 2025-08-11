@@ -97,7 +97,7 @@ struct subframe_info_t {
     int guard_interval;
 };
 
-void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int ti_mode, int fec_blocks, int l1_detail_cells, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length);
+void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int ti_mode, int fec_blocks, int l1_detail_cells, int subframe, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length, int excess_samples);
 
 int get_bits(int count)
 {
@@ -123,6 +123,7 @@ int main(int argc, char **argv)
     int l1b_papr_reduction;
     int l1b_frame_length_mode;
     int l1b_frame_length = 0;
+    int l1b_excess_samples_per_symbol = 0;
     int l1b_num_subframes;
     int l1b_preamble_num_symbols;
     int l1b_l1_detail_size_bytes;
@@ -596,6 +597,7 @@ int main(int argc, char **argv)
         l1b_frame_length = value;
         value = get_bits(13);
         printf("L1B_excess_samples_per_symbol = %ld\n", value);
+        l1b_excess_samples_per_symbol = value;
     }
     else {
         value = get_bits(16);
@@ -716,7 +718,7 @@ int main(int argc, char **argv)
         case FFTSIZE_32K:
             printf("L1B_first_sub_fft_size = 32K\n");
             break;
-        case 3:
+        default:
             printf("L1B_first_sub_fft_size = Reserved\n");
             break;
     }
@@ -1311,7 +1313,7 @@ int main(int argc, char **argv)
                 case FFTSIZE_32K:
                     printf("L1D_fft_size = 32K\n");
                     break;
-                case 3:
+                default:
                     printf("L1D_fft_size = Reserved\n");
                     break;
             }
@@ -2209,10 +2211,10 @@ int main(int argc, char **argv)
                 }
             }
             if (i == 0) {
-                atsc3rate(l1b_first_sub_fft_size, l1b_first_sub_guard_interval, l1b_first_sub_num_ofdm_symbols, l1b_preamble_num_symbols, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1b_first_sub_scattered_pilot_pattern, l1b_first_sub_sbs_first, l1b_first_sub_reduced_carriers, l1b_first_sub_scattered_pilot_boost, l1b_papr_reduction, l1d_plp_TI_mode, l1d_plp_HTI_num_fec_blocks + 1, l1b_l1_detail_total_cells, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length);
+                atsc3rate(l1b_first_sub_fft_size, l1b_first_sub_guard_interval, l1b_first_sub_num_ofdm_symbols, l1b_preamble_num_symbols, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1b_first_sub_scattered_pilot_pattern, l1b_first_sub_sbs_first, l1b_first_sub_reduced_carriers, l1b_first_sub_scattered_pilot_boost, l1b_papr_reduction, l1d_plp_TI_mode, l1d_plp_HTI_num_fec_blocks + 1, l1b_l1_detail_total_cells, i, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length, l1b_excess_samples_per_symbol);
             }
             else if (i > 0) {
-                atsc3rate(l1d_fft_size, l1d_guard_interval, l1d_num_ofdm_symbols, 0, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1d_scattered_pilot_pattern, l1d_sbs_first, l1d_reduced_carriers, l1d_scattered_pilot_boost, l1b_papr_reduction, l1d_plp_TI_mode, l1d_plp_HTI_num_fec_blocks + 1, l1b_l1_detail_total_cells, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length);
+                atsc3rate(l1d_fft_size, l1d_guard_interval, l1d_num_ofdm_symbols, 0, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1d_scattered_pilot_pattern, l1d_sbs_first, l1d_reduced_carriers, l1d_scattered_pilot_boost, l1b_papr_reduction, l1d_plp_TI_mode, l1d_plp_HTI_num_fec_blocks + 1, l1b_l1_detail_total_cells, i, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length, l1b_excess_samples_per_symbol);
             }
         }
     }
@@ -2273,7 +2275,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int ti_mode, int fec_blocks, int l1_detail_cells, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length)
+void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int ti_mode, int fec_blocks, int l1_detail_cells, int subframe, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length, int excess_samples)
 {
   int mod, plpsize;
   int l1cells, totalcells;
@@ -2287,7 +2289,7 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
   int papr_cells;
   int fec_cells;
   double clock_num, clock_den = 1.0;
-  double bitrate, T, TS, TF, TB, symbols, kbch, fecsize, fecrate;
+  double bitrate, T, TS, TF, TB, TSX, symbols, kbch, fecsize, fecrate;
 
   clock_num = 384000.0 * (16.0 + 2.0);
   switch (0)
@@ -3031,6 +3033,34 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
   T = 1.0 / (clock_num / clock_den);
   TB = 1.0 / 6144000.0;
   if (frame_length_mode == 0) {
+    for (int n = 0; n < num_subframes; n++) {
+      if (n == 0) {
+        TS = (T * (subframe_info[n].fft_size + subframe_info[n].guard_interval)) * 1000.0;
+        TSX = (T * (subframe_info[n].fft_size + subframe_info[n].guard_interval + excess_samples)) * 1000.0;
+        TF += (subframe_info[n].num_ofdm_symbols * TSX) + (subframe_info[n].num_preamble_symbols * TS) + (3072.0 * 4 * TB * 1000.0);
+        if (subframe == n && num_subframes > 1) {
+          if ((num_subframes - 1) == n) { 
+            printf("sub-frame time = %f ms\n", (subframe_info[n].num_ofdm_symbols * TSX) + (subframe_info[n].num_preamble_symbols * TS) + (3072.0 * 4 * TB * 1000.0) + ((frame_length * 5.0) - TF));
+          }
+          else {
+            printf("sub-frame time = %f ms\n", (subframe_info[n].num_ofdm_symbols * TSX) + (subframe_info[n].num_preamble_symbols * TS) + (3072.0 * 4 * TB * 1000.0));
+          }
+        }
+      }
+      else {
+        symbols = subframe_info[n].num_ofdm_symbols;
+        TS = (T * (subframe_info[n].fft_size + subframe_info[n].guard_interval + excess_samples)) * 1000.0;
+        TF += (symbols * TS);
+        if (subframe == n && num_subframes > 1) {
+          if ((num_subframes - 1) == n) { 
+            printf("sub-frame time = %f ms\n", (symbols * TS) + ((frame_length * 5.0) - TF));
+          }
+          else {
+            printf("sub-frame time = %f ms\n", (symbols * TS));
+          }
+        }
+      }
+    }
     TF = frame_length * 5.0;
   }
   else {
@@ -3039,13 +3069,19 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
         symbols = subframe_info[n].num_ofdm_symbols + subframe_info[n].num_preamble_symbols;
         TS = (T * (subframe_info[n].fft_size + subframe_info[n].guard_interval)) * 1000.0;
         TF += (symbols * TS) + (3072.0 * 4 * TB * 1000.0);
+        if (subframe == n && num_subframes > 1) {
+          printf("sub-frame time = %f ms\n", (symbols * TS) + (3072.0 * 4 * TB * 1000.0));
+        }
       }
       else {
         symbols = subframe_info[n].num_ofdm_symbols;
         TS = (T * (subframe_info[n].fft_size + subframe_info[n].guard_interval)) * 1000.0;
         TF += (symbols * TS);
-     }
-   }
+        if (subframe == n && num_subframes > 1) {
+          printf("sub-frame time = %f ms\n", (symbols * TS));
+        }
+      }
+    }
   }
   printf("frame time = %f ms\n", TF);
   total_preamble_cells = 0;
