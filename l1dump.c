@@ -97,7 +97,7 @@ struct subframe_info_t {
     int guard_interval;
 };
 
-void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int ti_mode, int fec_blocks, int l1_detail_cells, int subframe, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length, int excess_samples);
+void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int l1_detail_cells, int subframe, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length, int excess_samples, int plpsize);
 
 int get_bits(int count)
 {
@@ -151,6 +151,7 @@ int main(int argc, char **argv)
     int l1d_sbs_last = 0;
     int l1d_num_plp = 0;
     int l1d_plp_layer;
+    int l1d_plp_size;
     int l1d_plp_fec_type = 0;
     int l1d_plp_mod = 0;
     int l1d_plp_cod = 0;
@@ -159,7 +160,6 @@ int main(int argc, char **argv)
     int l1d_plp_TI_extended_interleaving = 0;
     int l1d_plp_HTI_inter_subframe;
     int l1d_plp_HTI_num_ti_blocks = 0;
-    int l1d_plp_HTI_num_fec_blocks = 0;
     int l1d_mimo_mixed;
     struct subframe_info_t subframe_info[257];
 
@@ -1865,6 +1865,7 @@ int main(int argc, char **argv)
             printf("L1D_plp%d_start = %ld\n", j, value);
             value = get_bits(24);
             printf("L1D_plp%d_size = %ld\n", j, value);
+            l1d_plp_size = value;
             value = get_bits(2);
             switch (value) {
                 case 0:
@@ -2092,7 +2093,6 @@ int main(int argc, char **argv)
                     if (l1d_plp_HTI_inter_subframe == 0) {
                         value = get_bits(12);
                         printf("L1D_plp%d_HTI_num_fec_blocks = %ld\n", j, value + 1);
-                        l1d_plp_HTI_num_fec_blocks = value;
                     }
                     else {
                         for (k = 0; k <= l1d_plp_HTI_num_ti_blocks; k++) {
@@ -2211,10 +2211,10 @@ int main(int argc, char **argv)
                 }
             }
             if (i == 0) {
-                atsc3rate(l1b_first_sub_fft_size, l1b_first_sub_guard_interval, l1b_first_sub_num_ofdm_symbols, l1b_preamble_num_symbols, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1b_first_sub_scattered_pilot_pattern, l1b_first_sub_sbs_first, l1b_first_sub_reduced_carriers, l1b_first_sub_scattered_pilot_boost, l1b_papr_reduction, l1d_plp_TI_mode, l1d_plp_HTI_num_fec_blocks + 1, l1b_l1_detail_total_cells, i, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length, l1b_excess_samples_per_symbol);
+                atsc3rate(l1b_first_sub_fft_size, l1b_first_sub_guard_interval, l1b_first_sub_num_ofdm_symbols, l1b_preamble_num_symbols, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1b_first_sub_scattered_pilot_pattern, l1b_first_sub_sbs_first, l1b_first_sub_reduced_carriers, l1b_first_sub_scattered_pilot_boost, l1b_papr_reduction, l1b_l1_detail_total_cells, i, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length, l1b_excess_samples_per_symbol, l1d_plp_size);
             }
             else if (i > 0) {
-                atsc3rate(l1d_fft_size, l1d_guard_interval, l1d_num_ofdm_symbols, 0, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1d_scattered_pilot_pattern, l1d_sbs_first, l1d_reduced_carriers, l1d_scattered_pilot_boost, l1b_papr_reduction, l1d_plp_TI_mode, l1d_plp_HTI_num_fec_blocks + 1, l1b_l1_detail_total_cells, i, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length, l1b_excess_samples_per_symbol);
+                atsc3rate(l1d_fft_size, l1d_guard_interval, l1d_num_ofdm_symbols, 0, l1d_plp_cod, l1d_plp_mod, l1d_plp_fec_type, l1d_scattered_pilot_pattern, l1d_sbs_first, l1d_reduced_carriers, l1d_scattered_pilot_boost, l1b_papr_reduction, l1b_l1_detail_total_cells, i, l1b_num_subframes + 1, &subframe_info[0], l1b_frame_length_mode, l1b_frame_length, l1b_excess_samples_per_symbol, l1d_plp_size);
             }
         }
     }
@@ -2275,9 +2275,9 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int ti_mode, int fec_blocks, int l1_detail_cells, int subframe, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length, int excess_samples)
+void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpreamblesyms, int rate, int constellation, int framesize, int pilotpattern, int firstsbs, int cred, int pilotboost, int paprmode, int l1_detail_cells, int subframe, int num_subframes, struct subframe_info_t *subframe_info, int frame_length_mode, int frame_length, int excess_samples, int plpsize)
 {
-  int mod, plpsize;
+  int mod, availablecells;
   int l1cells, totalcells;
   int total_preamble_cells;
   int first_preamble_cells;
@@ -2287,7 +2287,6 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
   int sbs_data_cells;
   int sbsnullcells;
   int papr_cells;
-  int fec_cells;
   double clock_num, clock_den = 1.0;
   double bitrate, T, TS, TF, TB, TSX, symbols, kbch, fecsize, fecrate;
 
@@ -2316,6 +2315,7 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
   l1cells += l1_detail_cells;
 
   if (framesize == FECFRAME_NORMAL) {
+    fecsize = 64800.0;
     switch (rate) {
       case C2_15:
         kbch = 8448;
@@ -2359,6 +2359,7 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
     }
   }
   else if (framesize == FECFRAME_SHORT) {
+    fecsize = 16200.0;
     switch (rate) {
       case C2_15:
         kbch = 1992;
@@ -2403,6 +2404,7 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
   }
   else {
     kbch = 0;
+    fecsize = 0.0;
   }
   switch (constellation) {
     case MOD_QPSK:
@@ -2972,59 +2974,6 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
           break;
       }
   }
-  if (framesize == FECFRAME_NORMAL)
-  {
-    fecsize = 64800.0;
-    switch (constellation) {
-      case MOD_QPSK:
-        fec_cells = 32400;
-        break;
-      case MOD_16QAM:
-        fec_cells = 16200;
-        break;
-      case MOD_64QAM:
-        fec_cells = 10800;
-        break;
-      case MOD_256QAM:
-        fec_cells = 8100;
-        break;
-      case MOD_1024QAM:
-        fec_cells = 6480;
-        break;
-      case MOD_4096QAM:
-        fec_cells = 5400;
-        break;
-      default:
-        fec_cells = 0;
-        break;
-    }
-  }
-  else if (framesize == FECFRAME_SHORT)
-  {
-    fecsize = 16200.0;
-    switch (constellation) {
-      case MOD_QPSK:
-        fec_cells = 8100;
-        break;
-      case MOD_16QAM:
-        fec_cells = 4050;
-        break;
-      case MOD_64QAM:
-        fec_cells = 2700;
-        break;
-      case MOD_256QAM:
-        fec_cells = 2025;
-        break;
-      default:
-        fec_cells = 0;
-        break;
-    }
-  }
-  else
-  {
-    fecsize = 0.0;
-    fec_cells = 0;
-  }
 
   if (paprmode != 1) {
     papr_cells = 0;
@@ -3100,14 +3049,12 @@ void atsc3rate(int fft_size, int guardinterval, int numpayloadsyms, int numpream
   }
   sbsnullcells = sbs_cells - sbs_data_cells;
   if (firstsbs) {
-    plpsize = totalcells - l1cells - (sbsnullcells * 2);
+    availablecells = totalcells - l1cells - (sbsnullcells * 2);
   }
   else {
-    plpsize = totalcells - l1cells - sbsnullcells;
+    availablecells = totalcells - l1cells - sbsnullcells;
   }
-  if (ti_mode == 2) {
-    plpsize = fec_blocks * fec_cells;
-  }
+  printf("Available PLP cells = %d\n", availablecells);
   fecrate = ((kbch - 16) / fecsize); /* 1 TS packet per ALP packet and MODE always = 1 */
   bitrate = (1000.0 / TF) * (plpsize * mod * fecrate);
   printf("TS bitrate = %.03f\n", bitrate);
