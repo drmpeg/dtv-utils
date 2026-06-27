@@ -1,4 +1,4 @@
-# Copyright 2014-2025 Ron Economos
+# Copyright 2014-2026 Ron Economos
 #
 # This file is part of dtv-utils
 #
@@ -204,6 +204,30 @@ For example (vv031.grc parameters):
 For example (vv503.grc with HTI interleaver PLP0 parameters):
 
 ./atsc3rate 8 5 150 2 9 1 0 1 0 1 1 0 4 0 28
+
+
+h264_parse
+----------------------------------
+
+To compile the h264_parse tool, cd to the h264_parse directory and invoke:
+
+g++ -O2 -D_FILE_OFFSET_BITS=64 main.cpp -o h264_parse
+
+
+xport.c
+----------------------------------
+
+To compile the xport Transport Stream demux, invoke:
+
+gcc -O2 -D_FILE_OFFSET_BITS=64 xport.c -o xport
+
+
+flags264.c
+----------------------------------
+
+To compile the flags264 H.264 elementary stream parser, invoke:
+
+gcc -O2 -D_FILE_OFFSET_BITS=64 flags264.c -o flags264
 
 
 DVB-T Test bitstreams (all have the same content, 1920x1080@29.97 fps video and 448 kbps AC3 audio):
