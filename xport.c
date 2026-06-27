@@ -1881,7 +1881,7 @@ void parse_h264_video(unsigned char *es_ptr, unsigned int length, unsigned long 
                     payloadSize += last_payload_size_byte;
                     payloadSize *= 8;
 #if 0
-                    printf("payloadType = %d, payloadSize = %d\n", payloadType, payloadSize);
+                    printf("payloadType = %d, payloadSize = %d at packet number %lld/%lld\n", payloadType, payloadSize, packet_counter, packet_counter * 188);
 #endif
                     switch (payloadType) {
                         case 0:
@@ -1892,13 +1892,21 @@ void parse_h264_video(unsigned char *es_ptr, unsigned int length, unsigned long 
                             if (nal_hrd_parameters_present_flag) {
                                 for (j = 0; j < (cpb_cnt_minus1 + 1); j++) {
                                     temp = read_bits(&sei_ptr, nal_initial_cpb_removal_delay_length_minus1 + 1);
+                                    sei_index -= nal_initial_cpb_removal_delay_length_minus1 + 1;
+                                    payloadSize -= nal_initial_cpb_removal_delay_length_minus1 + 1;
                                     temp = read_bits(&sei_ptr, nal_initial_cpb_removal_delay_length_minus1 + 1);
+                                    sei_index -= nal_initial_cpb_removal_delay_length_minus1 + 1;
+                                    payloadSize -= nal_initial_cpb_removal_delay_length_minus1 + 1;
                                 }
                             }
                             if (vcl_hrd_parameters_present_flag) {
                                 for (j = 0; j < (cpb_cnt_minus1 + 1); j++) {
                                     temp = read_bits(&sei_ptr, vcl_initial_cpb_removal_delay_length_minus1 + 1);
+                                    sei_index -= vcl_initial_cpb_removal_delay_length_minus1 + 1;
+                                    payloadSize -= vcl_initial_cpb_removal_delay_length_minus1 + 1;
                                     temp = read_bits(&sei_ptr, vcl_initial_cpb_removal_delay_length_minus1 + 1);
+                                    sei_index -= vcl_initial_cpb_removal_delay_length_minus1 + 1;
+                                    payloadSize -= vcl_initial_cpb_removal_delay_length_minus1 + 1;
                                 }
                             }
                             temp = read_bits(&sei_ptr, payloadSize);
@@ -1907,7 +1915,11 @@ void parse_h264_video(unsigned char *es_ptr, unsigned int length, unsigned long 
                         case 1:
                             if (nal_hrd_parameters_present_flag || vcl_hrd_parameters_present_flag) {
                                 temp = read_bits(&sei_ptr, nal_cpb_removal_delay_length_minus1 + 1);
+                                sei_index -= nal_cpb_removal_delay_length_minus1 + 1;
+                                payloadSize -= nal_cpb_removal_delay_length_minus1 + 1;
                                 temp = read_bits(&sei_ptr, nal_dpb_output_delay_length_minus1 + 1);
+                                sei_index -= nal_dpb_output_delay_length_minus1 + 1;
+                                payloadSize -= nal_dpb_output_delay_length_minus1 + 1;
                             }
                             if (pic_struct_present_flag) {
                                 pic_struct = read_bits(&sei_ptr, 4);
@@ -1969,6 +1981,7 @@ void parse_h264_video(unsigned char *es_ptr, unsigned int length, unsigned long 
                             sei_index -= payloadSize;
                             break;
                         default:
+                            temp = read_bits(&sei_ptr, payloadSize);
                             sei_index -= payloadSize;
                             break;
                     }
@@ -3138,7 +3151,7 @@ void    demux_mpeg2_transport(unsigned int length, unsigned char *buffer)
                                     pmt_stream_type = program_map_table[k];
                                     pmt_elementary_pid = (program_map_table[k+1] & 0x1f) << 8;
                                     pmt_elementary_pid |= program_map_table[k+2];
-                                    if (pmt_stream_type == 0x1 || pmt_stream_type == 0x2 || (pmt_stream_type == 0x80 && hdmv_mode == FALSE) || pmt_stream_type == 0x1b || pmt_stream_type == 0xea) {
+                                    if (pmt_stream_type == 0x1 || pmt_stream_type == 0x2 || (pmt_stream_type == 0x80 && hdmv_mode == FALSE) || pmt_stream_type == 0x1b || pmt_stream_type == 0x24 || pmt_stream_type == 0xea) {
                                         video_channel_count++;
                                         if (video_channel_count == video_channel) {
                                             video_pid = pmt_elementary_pid;
@@ -3653,7 +3666,7 @@ void    demux_mpeg2_transport(unsigned int length, unsigned char *buffer)
                     else {
                         --xport_packet_length;
                         pcr_bytes++;
-                        if (((audio_parse >= 0x000001c0 && audio_parse <= 0x000001df) && (audio_stream_type == 0x3 || audio_stream_type == 0x4 || audio_stream_type == 0x6)) || audio_parse == 0x000001bd || audio_parse == 0x000001fa) {
+                        if ((((audio_parse >= 0x000001c0 && audio_parse <= 0x000001df) && (audio_stream_type == 0x3 || audio_stream_type == 0x4 || audio_stream_type == 0x6)) || audio_parse == 0x000001bd) && xport_packet_length == 180) {
 #if 0
                             printf("PES start code = 0x%08x, stream_type = 0x%02x\r\n", audio_parse, audio_stream_type);
 #endif
