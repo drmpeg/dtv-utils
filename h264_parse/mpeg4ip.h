@@ -50,7 +50,7 @@
 #define PACKAGE_TARNAME TEMP_PACKAGE_TARNAME
 #define PACKAGE_VERSION TEMP_PACKAGE_VERSION
 #else
-#include <mpeg4ip_config.h>
+//#include <mpeg4ip_config.h>
 #endif
 #endif
 
@@ -86,15 +86,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#ifdef HAVE_INTTYPES_H
 #include <inttypes.h>
-#endif
-#ifdef HAVE_STDINT_H
 #include <stdint.h>
-#endif
-#if !defined(HAVE_INTTYPES_H) && !defined(HAVE_STDINT_H)
-#error "Don't have stdint.h or inttypes.h - no way to get uint8_t"
-#endif
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -119,14 +112,6 @@
 #endif
 #endif
 #include <sys/param.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-char *strcasestr(const char *haystack, const char *needle);
-#ifdef __cplusplus
-}
-#endif
 
 #define OPEN_RDWR O_RDWR
 #define OPEN_CREAT O_CREAT 
@@ -169,9 +154,9 @@ char *strcasestr(const char *haystack, const char *needle);
 /*****************************************************************************
  *             Generic type includes used in the whole package               *
  *****************************************************************************/
-#define D64  "%"D64F
-#define U64  "%"U64F
-#define X64 "%"X64F
+#define D64  "%" D64F
+#define U64  "%" U64F
+#define X64 "%" X64F
 
 #define M_LLU TO_U64(1000)
 #define M_64 TO_U64(1000)
