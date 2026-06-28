@@ -706,6 +706,7 @@ static uint32_t remove_03 (uint8_t *bptr, uint32_t len)
       bptr += 2;
       nal_len += 2;
       len--;
+      if (len <= nal_len) break;
       memmove(bptr, bptr + 1, len - nal_len);
     } else {
       bptr++;
